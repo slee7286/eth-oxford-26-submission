@@ -10,10 +10,38 @@
 body {
   color: var(--foreground);
   background: var(--background);
+  background-image: radial-gradient(circle, rgba(161, 161, 170, 0.06) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #27272a;
+}
+::-webkit-scrollbar-thumb {
+  background: #52525b;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #71717a;
 }
 
 @layer base {
   html {
     @apply antialiased;
+    scrollbar-color: #52525b #27272a;
+    scrollbar-width: thin;
+  }
+}
+
+@layer utilities {
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+  .glow-sm {
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.08);
   }
 }

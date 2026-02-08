@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useMarketData } from "@/hooks/useMarketData";
 import { MarketConfigTable } from "@/components/markets/MarketConfig";
@@ -46,6 +47,15 @@ export default function MarketDetailPage() {
   return (
     <div>
       <div className="mb-8">
+        <Link
+          href="/markets"
+          className="inline-flex items-center gap-1 text-sm text-zinc-400 hover:text-zinc-200 transition-colors mb-4"
+        >
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+          </svg>
+          Back to Markets
+        </Link>
         <div className="flex items-center gap-3 mb-2">
           <h1 className="text-3xl font-bold text-zinc-100">
             {feed.symbol.split("-")[0]} Protection
@@ -57,7 +67,7 @@ export default function MarketDetailPage() {
             href={`${EXPLORER_URL}/address/${address}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="hover:text-emerald-400 transition-colors"
+            className="font-mono text-xs bg-zinc-800/60 px-2.5 py-1 rounded-full hover:text-emerald-400 transition-colors"
           >
             {shortenAddress(address)}
           </a>

@@ -24,7 +24,7 @@ export function Input({
       )}
       <div className="relative">
         <input
-          className={`w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2.5 text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent ${
+          className={`w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-2.5 text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/60 focus:border-transparent transition-shadow duration-200 ${
             suffix ? "pr-16" : ""
           } ${error ? "border-red-500" : ""} ${className}`}
           {...props}

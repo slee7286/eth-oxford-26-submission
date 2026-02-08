@@ -28,14 +28,21 @@ function PriceRow({ stablecoin }: { stablecoin: string }) {
   else if (distance > 0.3) variant = "yellow";
 
   return (
-    <div className="flex items-center justify-between py-2 border-b border-zinc-800 last:border-0">
+    <div className="flex items-center justify-between py-2.5 border-b border-zinc-800/50 last:border-0">
       <div className="flex items-center gap-2">
         <span className="text-sm font-medium text-zinc-100">{stablecoin}</span>
-        <Badge variant={variant}>
-          {distance < 0.1 ? "Pegged" : `${distance.toFixed(2)}% off`}
-        </Badge>
+        <div className="flex items-center gap-1.5">
+          <span className={`w-1.5 h-1.5 rounded-full ${
+            variant === "green" ? "bg-emerald-400 animate-pulse" :
+            variant === "yellow" ? "bg-amber-400 animate-pulse" :
+            "bg-red-400 animate-pulse"
+          }`} />
+          <Badge variant={variant}>
+            {distance < 0.1 ? "Pegged" : `${distance.toFixed(2)}% off`}
+          </Badge>
+        </div>
       </div>
-      <span className="text-sm text-zinc-100 font-mono">
+      <span className="text-sm text-zinc-100 font-mono tabular-nums">
         ${usd.toFixed(4)}
       </span>
     </div>
@@ -44,7 +51,7 @@ function PriceRow({ stablecoin }: { stablecoin: string }) {
 
 export function PriceOverview({ stablecoins }: { stablecoins: string[] }) {
   return (
-    <Card>
+    <Card variant="glass">
       <h3 className="text-lg font-semibold text-zinc-100 mb-4">
         Stablecoin Prices
       </h3>

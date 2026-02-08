@@ -9,9 +9,19 @@ import { MarketCard } from "@/components/markets/MarketCard";
 import { Button } from "@/components/ui/Button";
 import { Spinner } from "@/components/ui/Spinner";
 import { getStablecoinFromFeedId } from "@/lib/constants";
+import type { MarketSummary } from "@/hooks/useMarkets";
+
+function isTestMarket(m: MarketSummary): boolean {
+  return m.state.totalLiquidity === 0n && m.state.nextPolicyId <= 1n;
+}
 
 export default function DashboardPage() {
   const { markets, loading, error } = useMarkets();
+
+  const activeMarkets = useMemo(
+    () => markets.filter((m) => !isTestMarket(m)),
+    [markets]
+  );
 
   const stablecoins = useMemo(() => {
     const set = new Set<string>();
@@ -48,7 +58,7 @@ export default function DashboardPage() {
         </p>
       </div>
 
-      <MarketsSummary markets={markets} />
+      <MarketsSummary markets={activeMarkets} />
 
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2">
@@ -62,13 +72,13 @@ export default function DashboardPage() {
               </Button>
             </Link>
           </div>
-          {markets.length === 0 ? (
+          {activeMarkets.length === 0 ? (
             <div className="text-center py-12 bg-zinc-900 rounded-xl border border-zinc-800">
-              <p className="text-zinc-400">No markets deployed yet</p>
+              <p className="text-zinc-400">No active markets yet</p>
             </div>
           ) : (
             <div className="grid gap-4 md:grid-cols-2">
-              {markets.slice(0, 4).map((m) => (
+              {activeMarkets.slice(0, 4).map((m) => (
                 <MarketCard key={m.address} market={m} />
               ))}
             </div>

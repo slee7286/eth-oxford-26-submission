@@ -18,14 +18,16 @@ export function Button({
   ...props
 }: ButtonProps) {
   const base =
-    "inline-flex items-center justify-center font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-zinc-900 disabled:opacity-50 disabled:cursor-not-allowed";
+    "inline-flex items-center justify-center font-medium rounded-lg transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-zinc-900 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]";
 
   const variants = {
-    primary: "bg-emerald-600 hover:bg-emerald-500 text-white focus:ring-emerald-500",
+    primary:
+      "bg-gradient-to-b from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white focus:ring-emerald-500 shadow-md shadow-emerald-900/30",
     secondary:
       "bg-zinc-700 hover:bg-zinc-600 text-zinc-100 focus:ring-zinc-500",
     danger: "bg-red-600 hover:bg-red-500 text-white focus:ring-red-500",
-    ghost: "bg-transparent hover:bg-zinc-800 text-zinc-300 focus:ring-zinc-500",
+    ghost:
+      "bg-transparent hover:bg-zinc-800/80 text-zinc-300 hover:text-zinc-100 focus:ring-zinc-500",
   };
 
   const sizes = {

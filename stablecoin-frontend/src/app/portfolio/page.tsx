@@ -11,6 +11,11 @@ import { useLPPosition } from "@/hooks/useLPPosition";
 import { formatEther, shortenAddress } from "@/lib/formatting";
 import { getFeedInfo } from "@/lib/constants";
 import Link from "next/link";
+import type { MarketSummary } from "@/hooks/useMarkets";
+
+function isTestMarket(m: MarketSummary): boolean {
+  return m.state.totalLiquidity === 0n && m.state.nextPolicyId <= 1n;
+}
 
 function LPPositionRow({ marketAddress, feedId }: { marketAddress: string; feedId: string }) {
   const { lpBalance, maxWithdrawable } = useLPPosition(marketAddress);
@@ -30,8 +35,8 @@ function LPPositionRow({ marketAddress, feedId }: { marketAddress: string; feedI
         <p className="text-xs text-zinc-500">{shortenAddress(marketAddress)}</p>
       </div>
       <div className="text-right text-sm">
-        <p className="text-zinc-100">{formatEther(lpBalance)} C2FLR</p>
-        <p className="text-xs text-zinc-500">
+        <p className="text-zinc-100 tabular-nums">{formatEther(lpBalance)} C2FLR</p>
+        <p className="text-xs text-zinc-500 tabular-nums">
           Max withdraw: {formatEther(maxWithdrawable)}
         </p>
       </div>
@@ -43,9 +48,14 @@ export default function PortfolioPage() {
   const { address, connect, isConnecting } = useWalletContext();
   const { markets } = useMarkets();
 
-  const marketAddresses = useMemo(
-    () => markets.map((m) => m.address),
+  const activeMarkets = useMemo(
+    () => markets.filter((m) => !isTestMarket(m)),
     [markets]
+  );
+
+  const marketAddresses = useMemo(
+    () => activeMarkets.map((m) => m.address),
+    [activeMarkets]
   );
   const { policies, loading, refetch } = usePolicies(marketAddresses);
 
@@ -79,11 +89,11 @@ export default function PortfolioPage() {
           <h2 className="text-xl font-semibold text-zinc-100 mb-4">
             LP Positions
           </h2>
-          {markets.length === 0 ? (
+          {activeMarkets.length === 0 ? (
             <p className="text-zinc-400 text-sm">No markets available.</p>
           ) : (
             <Card>
-              {markets.map((m) => (
+              {activeMarkets.map((m) => (
                 <LPPositionRow
                   key={m.address}
                   marketAddress={m.address}

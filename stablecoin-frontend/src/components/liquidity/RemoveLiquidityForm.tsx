@@ -46,19 +46,19 @@ export function RemoveLiquidityForm({
   if (!address || lpBalance === 0n) return null;
 
   return (
-    <Card>
+    <Card variant="action">
       <h3 className="text-lg font-semibold text-zinc-100 mb-4">
         Remove Liquidity
       </h3>
       <div className="space-y-4">
-        <div className="bg-zinc-800 rounded-lg p-3 space-y-1 text-sm">
+        <div className="bg-zinc-800/50 backdrop-blur rounded-lg p-3 space-y-1 text-sm">
           <div className="flex justify-between">
             <span className="text-zinc-400">Your LP Balance</span>
-            <span className="text-zinc-100">{formatEther(lpBalance)} C2FLR</span>
+            <span className="text-zinc-100 tabular-nums">{formatEther(lpBalance)} C2FLR</span>
           </div>
           <div className="flex justify-between">
             <span className="text-zinc-400">Max Withdrawable</span>
-            <span className="text-zinc-100">
+            <span className="text-zinc-100 tabular-nums">
               {formatEther(maxWithdrawable)} C2FLR
             </span>
           </div>
@@ -93,18 +93,23 @@ export function RemoveLiquidityForm({
 
         {tx.error && <p className="text-sm text-red-400">{tx.error}</p>}
         {tx.status === "success" && tx.txHash && (
-          <div className="bg-emerald-900/20 border border-emerald-800 rounded-lg p-3">
-            <p className="text-sm text-emerald-400 font-medium">
-              Liquidity removed!
-            </p>
-            <a
-              href={`${EXPLORER_URL}/tx/${tx.txHash}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs text-emerald-500 hover:underline"
-            >
-              View on Explorer
-            </a>
+          <div className="bg-emerald-900/20 border border-emerald-800 rounded-lg p-3 flex items-start gap-2">
+            <svg className="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div>
+              <p className="text-sm text-emerald-400 font-medium">
+                Liquidity removed!
+              </p>
+              <a
+                href={`${EXPLORER_URL}/tx/${tx.txHash}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-emerald-500 hover:underline"
+              >
+                View on Explorer
+              </a>
+            </div>
           </div>
         )}
       </div>

@@ -4,13 +4,41 @@ interface CardProps {
   children: React.ReactNode;
   className?: string;
   hover?: boolean;
+  variant?: "default" | "glass" | "stat" | "action";
+  accent?: "emerald" | "blue" | "amber";
 }
 
-export function Card({ children, className = "", hover }: CardProps) {
+const variantClasses = {
+  default: "bg-zinc-900 border border-zinc-800",
+  glass: "bg-zinc-900/60 backdrop-blur-xl border border-white/5",
+  stat: "bg-zinc-900 border border-zinc-800",
+  action: "bg-zinc-900 border border-zinc-800 shadow-lg shadow-black/20",
+};
+
+const accentColors = {
+  emerald: "border-t-emerald-500",
+  blue: "border-t-blue-500",
+  amber: "border-t-amber-500",
+};
+
+export function Card({
+  children,
+  className = "",
+  hover,
+  variant = "default",
+  accent,
+}: CardProps) {
+  const statAccent =
+    variant === "stat" && accent
+      ? `border-t-2 ${accentColors[accent]}`
+      : "";
+
   return (
     <div
-      className={`bg-zinc-900 border border-zinc-800 rounded-xl p-6 ${
-        hover ? "hover:border-zinc-700 transition-colors cursor-pointer" : ""
+      className={`${variantClasses[variant]} rounded-xl p-6 ${statAccent} ${
+        hover
+          ? "hover:border-zinc-700 transition-all duration-200 cursor-pointer"
+          : ""
       } ${className}`}
     >
       {children}

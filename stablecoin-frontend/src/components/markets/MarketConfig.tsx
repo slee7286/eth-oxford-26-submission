@@ -32,9 +32,14 @@ export function MarketConfigTable({ config }: { config: MarketConfigType }) {
       <h3 className="text-lg font-semibold text-zinc-100 mb-4">
         Market Configuration
       </h3>
-      <div className="space-y-2">
-        {rows.map((row) => (
-          <div key={row.label} className="flex justify-between text-sm py-1">
+      <div className="space-y-0">
+        {rows.map((row, i) => (
+          <div
+            key={row.label}
+            className={`flex justify-between text-sm py-2 px-2 rounded ${
+              i % 2 === 0 ? "bg-zinc-800/30" : ""
+            }`}
+          >
             <span className="text-zinc-400">{row.label}</span>
             <span className="text-zinc-100 font-medium">{row.value}</span>
           </div>
