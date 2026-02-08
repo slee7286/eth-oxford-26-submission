@@ -1,0 +1,246 @@
+[
+  {
+    "inputs": [],
+    "name": "addLiquidity",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "barrierPpm",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "notional", "type": "uint256" },
+      { "internalType": "uint256", "name": "pBps", "type": "uint256" },
+      { "internalType": "uint256", "name": "issuedAt", "type": "uint256" },
+      { "internalType": "bytes", "name": "sig", "type": "bytes" }
+    ],
+    "name": "buyProtection",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "policyId", "type": "uint256" },
+      { "internalType": "uint256", "name": "eventStart", "type": "uint256" },
+      { "internalType": "uint256", "name": "eventEnd", "type": "uint256" },
+      { "internalType": "uint256", "name": "issuedAt", "type": "uint256" },
+      { "internalType": "bytes", "name": "sig", "type": "bytes" }
+    ],
+    "name": "claim",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "currentLambdaBps",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "feedId",
+    "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getConfig",
+    "outputs": [
+      { "internalType": "bytes32", "name": "_feedId", "type": "bytes32" },
+      { "internalType": "uint256", "name": "_barrierPpm", "type": "uint256" },
+      { "internalType": "uint256", "name": "_windowSec", "type": "uint256" },
+      { "internalType": "uint256", "name": "_horizonSec", "type": "uint256" },
+      { "internalType": "uint256", "name": "_lambdaMinBps", "type": "uint256" },
+      { "internalType": "uint256", "name": "_lambdaMaxBps", "type": "uint256" },
+      { "internalType": "uint256", "name": "_reserveFactorBps", "type": "uint256" },
+      { "internalType": "uint256", "name": "_maxPriceAgeSec", "type": "uint256" },
+      { "internalType": "address", "name": "_oracleSigner", "type": "address" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "horizonSec",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "lambdaMaxBps",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "lambdaMinBps",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "name": "lpBalances",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "maxPriceAgeSec",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "nextPolicyId",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "oracleSigner",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "outstandingExposure",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "owner",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "name": "policies",
+    "outputs": [
+      { "internalType": "address", "name": "buyer", "type": "address" },
+      { "internalType": "uint256", "name": "notional", "type": "uint256" },
+      { "internalType": "uint256", "name": "premiumPaid", "type": "uint256" },
+      { "internalType": "uint256", "name": "start", "type": "uint256" },
+      { "internalType": "uint256", "name": "expiry", "type": "uint256" },
+      { "internalType": "bool", "name": "claimed", "type": "bool" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "notional", "type": "uint256" },
+      { "internalType": "uint256", "name": "pBps", "type": "uint256" }
+    ],
+    "name": "quotePremium",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "uint256", "name": "amount", "type": "uint256" }],
+    "name": "removeLiquidity",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "reserveFactorBps",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "address", "name": "s", "type": "address" }],
+    "name": "setOracleSigner",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "totalLiquidity",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "utilizationBps",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "windowSec",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": true, "internalType": "uint256", "name": "id", "type": "uint256" },
+      { "indexed": true, "internalType": "address", "name": "buyer", "type": "address" },
+      { "indexed": false, "internalType": "uint256", "name": "payout", "type": "uint256" }
+    ],
+    "name": "Claimed",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": true, "internalType": "address", "name": "lp", "type": "address" },
+      { "indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256" }
+    ],
+    "name": "LiquidityAdded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": true, "internalType": "address", "name": "lp", "type": "address" },
+      { "indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256" }
+    ],
+    "name": "LiquidityRemoved",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": true, "internalType": "uint256", "name": "id", "type": "uint256" },
+      { "indexed": true, "internalType": "address", "name": "buyer", "type": "address" },
+      { "indexed": false, "internalType": "uint256", "name": "notional", "type": "uint256" },
+      { "indexed": false, "internalType": "uint256", "name": "premium", "type": "uint256" },
+      { "indexed": false, "internalType": "uint256", "name": "start", "type": "uint256" },
+      { "indexed": false, "internalType": "uint256", "name": "expiry", "type": "uint256" }
+    ],
+    "name": "PolicyBought",
+    "type": "event"
+  },
+  {
+    "stateMutability": "payable",
+    "type": "receive"
+  }
+]

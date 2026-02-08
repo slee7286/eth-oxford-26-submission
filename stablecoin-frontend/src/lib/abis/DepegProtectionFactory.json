@@ -1,0 +1,50 @@
+[
+  {
+    "inputs": [],
+    "name": "getAllMarkets",
+    "outputs": [
+      { "internalType": "address[]", "name": "list", "type": "address[]" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "uint256", "name": "index", "type": "uint256" }],
+    "name": "getMarket",
+    "outputs": [
+      { "internalType": "address", "name": "market", "type": "address" },
+      { "internalType": "address", "name": "creator", "type": "address" },
+      { "internalType": "uint256", "name": "createdAt", "type": "uint256" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "marketsCount",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "owner",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": true, "internalType": "address", "name": "market", "type": "address" },
+      { "indexed": true, "internalType": "address", "name": "creator", "type": "address" },
+      { "indexed": false, "internalType": "uint256", "name": "index", "type": "uint256" },
+      { "indexed": false, "internalType": "bytes32", "name": "feedId", "type": "bytes32" },
+      { "indexed": false, "internalType": "uint256", "name": "barrierPpm", "type": "uint256" },
+      { "indexed": false, "internalType": "uint256", "name": "windowSec", "type": "uint256" },
+      { "indexed": false, "internalType": "uint256", "name": "horizonSec", "type": "uint256" }
+    ],
+    "name": "MarketCreated",
+    "type": "event"
+  }
+]
