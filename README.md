@@ -21,11 +21,12 @@ Flareify is a dual-product DeFi platform built on Flare:
 ## ✨ Features
 
 ### Gas Futures Trading
-- Real-time FTSO oracle price feeds
-- Long/short position trading
+- Real Ethereum gas prices via FDC Web2Json attestation (Beaconcha.in source, merkle-proven on Flare)
+- FastAPI backend polling every 90s with SQLite history
+- Frontend wired to backend with on-chain fallback
+- Long/short position trading with leverage
 - Liquidity pool management
-- Live candlestick charts
-- Simulated orderbook around FTSO prices
+- Live candlestick charts from real gas price history
 - Contract settlement mechanism
 - Payout claims
 
@@ -51,7 +52,20 @@ npm run dev
 # Opens on http://localhost:9002
 ```
 
-### Run Oracle Backend
+### Run Gas Futures Backend (FDC Web2Json)
+
+```bash
+cd eth-gas-futures-flare-backend1
+python -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env  # Fill in PRIVATE_KEY (Coston2 wallet)
+python main.py
+# Runs on http://localhost:8000 — Swagger docs at /docs
+```
+
+Mock mode (no wallet needed): set `USE_MOCK=true` in `.env` for synthetic gas data.
+
+### Run Stablecoin Oracle Backend
 
 ```bash
 cd oracle
@@ -75,11 +89,87 @@ ORACLE_PK=0x... ETH_RPC=... BSC_RPC=... node server.js
 ### Live Data Flow
 
 ```
-FTSO Oracle → getCurrentGasPrice() → saveTick() → Candlestick Chart
-                                               → Header (Live Price)
-                                               → Orderbook (simulated around FTSO price)
-                                               → Trade Panel (current price display)
+Beaconcha.in Gas API
+        │
+        v
+FDC Web2Json Attestation (Flare Coston2)
+        │
+        v
+FastAPI Backend (SQLite history) ──→ /gas/current, /gas/history, /gas/average
+        │
+        v
+React Frontend (useBackendGas hook, 10s polling)
+        │                               │
+        ├─→ Candlestick Chart            ├─→ Header (Live Price)
+        ├─→ MarketData (source + 7d avg) └─→ Trade Panel
+        │
+        v (fallback if backend offline)
+Smart Contract → getCurrentGasPrice()
 ```
+
+## ⛽ Gas Futures Backend — FDC Web2Json Attestation
+
+Located in `eth-gas-futures-flare-backend1/`
+
+### How It Works
+
+The backend uses Flare's **FDC Web2Json** attestation type to fetch Ethereum gas prices with cryptographic proof. Every ~90 seconds:
+
+1. **Direct fetch** — Queries `beaconcha.in/api/v1/execution/gasnow` for immediate display (unattested)
+2. **FDC attestation cycle** — Submits the same API call as a Web2Json attestation request to Flare's FdcHub contract on Coston2
+3. **Consensus** — ~100 independent attestation providers verify the API response and reach consensus
+4. **Proof retrieval** — After finalization (~70s), retrieves a merkle proof from the DA layer — cryptographic proof the gas data is correct
+5. **Storage** — Decodes and stores the attested gas price in SQLite, serves via REST API
+
+### FDC Attestation Flow
+
+```
+Beaconcha.in API (/api/v1/execution/gasnow)
+        │
+        v
+Backend prepares Web2Json attestation request
+        │
+        v
+FdcHub.requestAttestation() on Coston2 (pays 1000 wei fee)
+        │
+        v
+~100 attestation providers fetch the same URL, verify response
+        │
+        v
+Voting round finalized (~70s) → Relay contract updated
+        │
+        v
+DA layer builds merkle tree (~30s after finalization)
+        │
+        v
+Backend retrieves proof, decodes gas tiers (rapid/fast/standard/slow)
+        │
+        v
+SQLite storage → REST API → Frontend
+```
+
+### REST API Endpoints
+
+| Endpoint | Description | Response |
+|----------|-------------|----------|
+| `GET /gas/current` | Latest gas price | `{ latest: { timestamp, gas_price_gwei, source } }` |
+| `GET /gas/history?from=TS` | Historical readings (for charts) | `{ readings: [...], count }` |
+| `GET /gas/average?days=7` | Rolling average | `{ average_gwei, days, sample_count }` |
+| `GET /health` | System status | `{ status, mode, readings_stored }` |
+
+**Data source field** indicates verification level:
+- `fdc-attested` — Verified by Flare's attestation providers (has merkle proof)
+- `direct` — Fetched directly from Beaconcha.in (unattested, for quick display while FDC cycle runs)
+- `mock` — Synthetic data (dev/demo mode)
+
+### Tech Stack
+
+- **Python/FastAPI** — Async REST API
+- **web3.py** — Flare Coston2 contract interaction (FdcHub, Relay, FlareSystemsManager)
+- **SQLite (WAL mode)** — Gas price history storage
+- **aiohttp** — Async HTTP for Beaconcha.in API
+
+---
 
 ## 🛡️ Stablecoin Depeg Protection
 
@@ -234,23 +324,34 @@ npx hardhat run scripts/claim.js --network coston2
 ## 📁 Project Structure
 
 ```
-src/
+eth-gas-futures-flare-backend1/     # Gas Futures FDC Backend (Python)
+├── main.py               # FastAPI app + poll loop
+├── fdc.py                # FDC Web2Json client (prepare, submit, wait, retrieve, decode)
+├── db.py                 # SQLite async database
+├── models.py             # Pydantic response models
+├── config.py             # Settings (env vars)
+├── mock.py               # Mock data generator (dev mode)
+├── requirements.txt      # Python dependencies
+└── Dockerfile            # Container deployment
+
+src/                      # Gas Futures Frontend (Next.js)
 ├── app/
-│   ├── page.tsx          # Main trading terminal (gas futures)
+│   ├── page.tsx          # Main trading terminal
 │   ├── liquidity/        # LP deposit/withdraw
 │   └── settle/           # Contract settlement
 ├── components/Terminal/
-│   ├── Header.tsx        # Nav + live FTSO price + wallet
+│   ├── Header.tsx        # Nav + live price + wallet
 │   ├── TradingChart.tsx  # Candlestick chart (lightweight-charts)
 │   ├── TradePanel.tsx    # Long/Short execution panel
 │   ├── ActivityPanel.tsx # Positions + contract info
-│   └── MarketData.tsx    # Orderbook + trade feed
+│   └── MarketData.tsx    # Market data + data source indicator
 └── lib/
-    ├── config.ts         # Contract address + ABI
+    ├── config.ts         # Contract address + ABI + backend URL
     ├── blockchain.ts     # Wallet + contract hooks
-    └── store.ts          # FTSO tick persistence + OHLC
+    ├── backend.ts        # Backend data hook (useBackendGas)
+    └── store.ts          # Tick persistence + OHLC candles
 
-oracle/
+oracle/                   # Stablecoin Depeg Oracle (Node.js)
 ├── OracleService.js      # Stablecoin index aggregation + FDC attestations
 ├── server.js             # REST API (quotes, attestations, FLR spot)
 └── ...
@@ -267,11 +368,12 @@ scripts/
 
 ### Gas Futures Trading
 
-1. **Connect Wallet** - MetaMask will prompt to switch to Coston2
-2. **View Live Prices** - FTSO oracle feeds update in real-time
-3. **Open Position** - Choose long/short and quantity
-4. **Add Liquidity** - Navigate to /liquidity to deposit C2FLR
-5. **Settle & Claim** - After contract expiry, settle and claim payouts
+1. **Start Backend** - Run the FDC Web2Json backend (`python main.py` in `eth-gas-futures-flare-backend1/`)
+2. **Connect Wallet** - MetaMask will prompt to switch to Coston2
+3. **View Live Prices** - Real Ethereum gas prices via FDC attestation, with data source indicator (FDC Attested / Direct / On-Chain)
+4. **Open Position** - Choose long/short and quantity
+5. **Add Liquidity** - Navigate to /liquidity to deposit C2FLR
+6. **Settle & Claim** - After contract expiry, settle and claim payouts
 
 ### Depeg Protection
 
@@ -303,9 +405,9 @@ We implemented **parametric futures** around two key risk primitives:
 2. **Gas Price Index Futures** - Traditional futures on Ethereum gas prices
 
 Both products leverage Flare's native data stack:
-- **FDC (Flare Data Connector)** for bridging Web2 + Web3 data into signed, on-chain indices
-- **FTSO** for real-time oracle price feeds
-- **Coston2 testnet** with standard EVM tooling (Hardhat, ethers.js)
+- **FDC Web2Json** for bridging Ethereum gas prices from Beaconcha.in with merkle-proven attestation
+- **FDC-style signing** for multi-source stablecoin parity indices (CEX + DEX aggregation)
+- **Coston2 testnet** with standard EVM tooling (Hardhat, ethers.js, web3.py)
 
 ### How We Used FDC
 
@@ -349,19 +451,21 @@ On-chain, the market verifies signatures via **ECDSA** and accepts updates only 
 - Correctly scoped to the market/chain
 - Signed by authorized `oracleSigner`
 
-### Ethereum Gas Index (FDC Implementation)
+### Ethereum Gas Price Oracle (FDC Web2Json)
 
-For gas-linked products, we used FDC to compute an **ETH basefee/TWAP-style "gas index"** off-chain:
+For gas-linked products, we built a **Python/FastAPI backend** that uses Flare's **FDC Web2Json** attestation type to bring real Ethereum gas prices on-chain with cryptographic proof:
 
-- Sample `basefee` across time windows
-- Blend with reputable public endpoints for redundancy
-- Push signed value on-chain for settlement
+- **Data source:** Beaconcha.in `/api/v1/execution/gasnow` — public, no API key, returns gas prices in wei across 4 tiers (rapid, fast, standard, slow)
+- **Attestation:** Every 90s, submits the API call to FdcHub as a Web2Json request. ~100 attestation providers independently fetch the same URL and reach consensus.
+- **Proof:** After voting round finalization (~70s), retrieves a merkle proof from the DA layer. The proof cryptographically verifies the gas data is authentic.
+- **Storage:** Decodes proof, stores attested price in SQLite, serves via REST API to the frontend
+- **Fallback:** Direct (unattested) fetch runs in parallel for immediate display while the FDC cycle completes
 
-**FDC Benefits:**
-- Robust on-chain anchor for validating external readings
-- Bounds checks vs. known baseline prevent manipulation
-- Detailed, venue-rich aggregation off-chain
-- Simple verification on-chain
+**Key implementation details:**
+- DA layer needs ~60s after round finalization to build its merkle tree — backend uses 30s initial wait + 15s retries
+- Voting rounds are 90s epochs; finalization typically ~70s after submission
+- `eth_abi` cannot parse the full nested `IWeb2Json.Response` struct — we use a scan approach to find gas data in the raw response bytes
+- Coston2 is a POA chain — requires `ExtraDataToPOAMiddleware` in web3.py
 
 ### Why This Matters
 
@@ -449,10 +553,14 @@ Plus `chainId` and `marketAddress` ensure no cross-contract or cross-chain repla
 
 #### 4. Composable Architecture
 ```
-Web2 CEX ─┐
-Web3 DEX ─┼─→ Oracle Aggregation ─→ FDC Signing ─→ On-chain Verification
-FTSO ─────┘                                      ↓
-                                          Settlement & Payouts
+Gas Futures:
+  Beaconcha.in ─→ FDC Web2Json Attestation ─→ Merkle Proof ─→ Backend API ─→ Frontend
+
+Stablecoin Depeg:
+  Web2 CEX ─┐
+  Web3 DEX ─┼─→ Oracle Aggregation ─→ FDC Signing ─→ On-chain Verification
+            ┘                                      ↓
+                                            Settlement & Payouts
 ```
 
 ### Technical Highlights
@@ -509,18 +617,23 @@ function _verifyIndexSignature(
 
 ### Results & Impact
 
-**A production-ready futures backend that:**
+**Two production-ready FDC-powered backends:**
+
+Gas Futures Backend:
+- ✅ Real Ethereum gas prices via FDC Web2Json attestation
+- ✅ Merkle-proven data from ~100 independent attestation providers
+- ✅ FastAPI + SQLite with 24h history, rolling averages, and real-time polling
+- ✅ Frontend with graceful on-chain fallback
+
+Stablecoin Depeg Backend:
 - ✅ Settles on signed, cross-venue parity indices
-- ✅ Supports gas-linked products via FDC
-- ✅ Runs entirely on Flare (Coston2)
-- ✅ Leverages FDC for rich off-chain data
-- ✅ Stays simple where it should
-- ✅ Remains resilient where it matters
+- ✅ Multi-source aggregation (3 CEX + 2 DEX, 2 chains)
+- ✅ Domain-separated cryptographic signatures
 
 **Key Metrics:**
-- **5+ data sources** (3 CEX + 2 DEX)
+- **FDC Web2Json attestation cycle**: ~2-3 min (submit → finalize → proof)
+- **5+ data sources** for stablecoin parity (3 CEX + 2 DEX)
 - **2 blockchain networks** for DEX data (Ethereum + BSC)
-- **Sub-second latency** for oracle updates
 - **Zero downtime** during testing on Coston2
 - **100% signature verification** success rate
 
